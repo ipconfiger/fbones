@@ -27,16 +27,21 @@ def init():
     static_img_path = get_path('static', 'img')
     static_css_path = get_path('static', 'css')
     templates_path = get_path('templates')
+    configs_path = get_path('configs')
     os.makedirs(static_js_path)
     os.makedirs(static_img_path)
     os.makedirs(static_css_path)
     os.makedirs(templates_path)
+    os.makedirs(configs_path)
     click.echo('|-static/')
     click.echo('|    |----js/')
     click.echo('|    |----css/')
     click.echo('|    |----img/')
     click.echo('|')
     click.echo('|-templates/')
+    click.echo('|')
+    click.echo('|-configs/')
+
 
 
 
