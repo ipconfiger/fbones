@@ -60,4 +60,6 @@ def configure_blueprints(app):
     :return:
     :rtype:
     """
+    import xxx
+    app.register_blueprint(xxx.views.bp)
     pass
