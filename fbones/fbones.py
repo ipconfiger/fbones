@@ -5,6 +5,8 @@
 import os
 import shutil
 import click
+import sys
+
 
 def get_path(*path):
     paths = []
@@ -20,6 +22,25 @@ def copy_to(src, dst, ext):
         shutil.copy(os.path.join(src, f_name), dst)
 
 
+def clear_directory(path):
+    for item_name in [f for f in os.listdir(path)]:
+        item_path = os.path.join(path, item_name)
+        if os.path.isfile(item_path):
+            os.remove(item_path)
+        else:
+            shutil.rmtree(item_path)
+
+
+def set_lock():
+    with open(get_path('.project'), 'w') as f:
+        f.write('')
+        f.close()
+
+
+def check_lock():
+    return os.path.exists(get_path('.project'))
+
+
 @click.group()
 def cli():
     pass
@@ -27,6 +48,9 @@ def cli():
 
 @click.command()
 def init():
+    if check_lock():
+        click.echo("There's a exists project in this directory, an empty directory needed")
+        sys.exit(1)
     click.echo('init project...')
     click.echo('create directory...')
     static_js_path = get_path('static', 'js')
@@ -56,11 +80,15 @@ def init():
     copy_to('%s/resources/configs' % git_root, get_path('configs'), '.py')
     shutil.rmtree(git_root)
     click.echo('Done')
+    set_lock()
 
 
 @click.command()
 @click.argument('name')
 def addbp(name):
+    if not check_lock():
+        click.echo('This command must run under project root directory')
+        sys.exit(1)
     click.echo('add blueprint:%s' % name)
     dir_path = get_path(name)
     os.mkdir(dir_path)
@@ -115,10 +143,22 @@ def addbp(name):
 
     click.echo("Blueprint created")
 
+@click.command()
+def clear():
+    if not check_lock():
+        click.echo('This command must run under project root directory')
+        sys.exit(1)
+    clear_directory(os.getcwd())
+    click.echo("done")
+
 
 cli.add_command(init)
 cli.add_command(addbp)
+cli.add_command(clear)
 
+def main():
+    cli()
 
-cli()
+if __name__ == "__main__":
+    main()
 
