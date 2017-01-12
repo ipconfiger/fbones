@@ -115,8 +115,10 @@ def addbp(name):
         f.write('# coding=utf8')
         f.close()
 
-    insert_line0 = u"    import %s" % name
-    insert_line1 = u"    app.register_blueprint(%s.views.bp)" % name
+    p = dict(name=name)
+
+    insert_line0 = u"    from %(name)s import views as %(name)s_views" % p
+    insert_line1 = u"    app.register_blueprint(%s_views.bp)" % name
 
     app_file = get_path('app.py')
     app_lines = None
@@ -142,6 +144,7 @@ def addbp(name):
         fo.close()
 
     click.echo("Blueprint created")
+
 
 @click.command()
 def clear():

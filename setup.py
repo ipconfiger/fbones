@@ -13,9 +13,10 @@ setup(name='fbones',
       packages=['fbones'],
       install_requires=[
           'flask',
-          'click'
+          'click',
+          'alembic'
       ],
-      entry_points = {
+      entry_points={
         'console_scripts': ['fbones=fbones.fbones:main'],
       },
       zip_safe=False)
