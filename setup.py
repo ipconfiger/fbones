@@ -15,6 +15,7 @@ setup(name='fbones',
           'flask',
           'click',
           'alembic'
+          'flask_doc'
       ],
       entry_points={
         'console_scripts': ['fbones=fbones.fbones:main'],

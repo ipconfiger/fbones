@@ -79,7 +79,9 @@ def init():
     copy_to('%s/resources' % git_root, os.getcwd(), '.py')
     copy_to('%s/resources/configs' % git_root, get_path('configs'), '.py')
     shutil.rmtree(git_root)
-    click.echo('Done')
+    click.echo('start initialize alembic')
+    os.system('alembic init db_versions')
+    click.echo('completed!')
     set_lock()
 
 

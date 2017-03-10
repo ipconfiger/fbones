@@ -1,6 +1,7 @@
 # coding=utf8
 from flask import Flask
 from configs import config
+from constants import FLASK_DOC_EXTENTION_KEY
 
 __all__ = ['create_app']
 
@@ -8,10 +9,11 @@ __all__ = ['create_app']
 def create_app():
     app = Flask(__name__)
     app.config.from_object(config)
-    configure_extensions(app)
+    extensions = configure_extensions(app)
     configure_template_filters(app)
     configure_hooks(app)
     configure_blueprints(app)
+    extensions[FLASK_DOC_EXTENTION_KEY].prepare()
     return app
 
 
@@ -23,7 +25,10 @@ def configure_extensions(app):
     :return:
     :rtype:
     """
-    pass
+    from flask_doc.generator import Generator
+    results = {}
+    results.update({FLASK_DOC_EXTENTION_KEY: Generator(app)})
+    return results
 
 
 def configure_template_filters(app):
