@@ -41,6 +41,44 @@ def check_lock():
     return os.path.exists(get_path('.project'))
 
 
+def edit_alembic_env():
+    """
+    修补alembic的env.py使之可以用config.py中定义的DB_URL
+
+    :return:
+    :rtype:
+    """
+    file_path = get_path('db_versions', 'env.py')
+    lines = None
+    with open(file_path, 'r') as f:
+        lines = f.readlines()
+        f.close()
+    lines.insert(4, "from models import Base")
+    lines.insert(4, "from configs import settings")
+    lines.insert(1, "sys.path.append(os.path.join('./'))")
+    lines.insert(1, "import os")
+    lines.insert(1, "import sys")
+    for idx, line in enumerate(lines):
+        if line.startswith('target_metadata ='):
+            lines[idx] = 'target_metadata = Base.metadata'
+
+    for idx, line in enumerate(lines):
+        if line.startswith('    url = config.get_main_option'):
+            lines [idx] = '    url = settings.DB_URI'
+
+    selected_idx = 0
+    for idx, line in enumerate(lines):
+        if line.startswith('        config.get_section(config.config_ini_section)'):
+            selected_idx = idx - 1
+            lines[idx] = '        section,'
+
+    lines.insert(selected_idx, "    section['sqlalchemy.url'] = settings.DB_URI")
+    lines.insert(selected_idx, "    section = config.get_section(config.config_ini_section)")
+
+    with open(file_path, 'w') as f:
+        f.write("\n".join(lines))
+
+
 @click.group()
 def cli():
     pass
@@ -81,6 +119,7 @@ def init():
     shutil.rmtree(git_root)
     click.echo('start initialize alembic')
     os.system('alembic init db_versions')
+    edit_alembic_env()
     click.echo('completed!')
     set_lock()
 
@@ -157,9 +196,16 @@ def clear():
     click.echo("done")
 
 
+@click.command()
+def db_patch():
+    edit_alembic_env()
+    click.echo("Done!")
+
+
 cli.add_command(init)
 cli.add_command(addbp)
 cli.add_command(clear)
+cli.add_command(db_patch)
 
 def main():
     cli()

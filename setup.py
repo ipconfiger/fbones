@@ -14,7 +14,7 @@ setup(name='fbones',
       install_requires=[
           'flask',
           'click',
-          'alembic'
+          'alembic',
           'flask_doc'
       ],
       entry_points={
