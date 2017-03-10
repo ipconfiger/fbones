@@ -21,5 +21,23 @@ A bootstrap toolkit to kickoff a flask project
 
     $fbones addnp name
 
+###4. echo supervisord conf
+
+    $fbones deploy_supervisor [name] [port] [number of core]
+
+  this command will just print on screen, use > to save a file:
+
+    $fbones deploy_supervisor my_app 8000 4 > /etc/supervisord.d/my_app.conf
+
+###5. echo nginx conf
+
+    $fbones deploy_nginx [name] [upstream port] [domain]
+
+  this command will print conf file on screen
+
+    $fbones deploy_nginx my_app 80000 test.mydomain.com > /etc/nginx/conf.d/my_app.conf
+
+
+
 
 

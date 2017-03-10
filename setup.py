@@ -4,7 +4,7 @@
 from setuptools import setup
 
 setup(name='fbones',
-      version='0.0.1',
+      version='0.0.4',
       description='A bootstrap toolkit to kickoff a flask project',
       url='https://github.com/ipconfiger/fbones',
       author='Alexander.Li',
@@ -15,7 +15,9 @@ setup(name='fbones',
           'flask',
           'click',
           'alembic',
-          'flask_doc'
+          'flask_doc',
+          'gunicorn',
+          'meinheld'
       ],
       entry_points={
         'console_scripts': ['fbones=fbones.fbones:main'],

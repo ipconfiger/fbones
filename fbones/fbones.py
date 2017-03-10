@@ -201,11 +201,80 @@ def db_patch():
     edit_alembic_env()
     click.echo("Done!")
 
+@click.command()
+@click.argument('name')
+@click.argument('port')
+@click.argument('core')
+def deploy_supervisor(name, port, core):
+    params = dict(
+        name=name,
+        port=port,
+        core=core,
+        path=get_path()
+    )
+    template = """[program:%(name)s]
+command=/usr/local/bin/gunicorn -w %(core)s -b 127.0.0.1:%(port)s --timeout 180 --worker-class="egg:meinheld#gunicorn_worker" wsgi:app
+directory=%(path)s
+umask=022
+startsecs=0
+stopwaitsecs=0
+redirect_stderr=true
+stdout_logfile=/var/log/%(name)s.log
+stderr_logfile=/var/log/%(name)s-error.log
+autorestart=true
+autostart=true
+""" % params
+    click.echo(template)
+
+@click.command()
+@click.argument('name')
+@click.argument('port')
+@click.argument('domain')
+def deploy_nginx(name, port, domain):
+    params = dict(
+        name=name,
+        port=port,
+        domain=domain,
+        path=get_path()
+    )
+    txt = """upstream %(name)s {
+  server 127.0.0.1:%(port)s;
+}
+
+server {
+  listen 80;
+  server_name %(domain)s;
+  access_log /var/log/nginx/%(name)s.log main;
+  error_log /var/log/nginx/%(name)s error.log;
+
+  location /static {
+    root %(path)s;
+  }
+
+  location / {
+    expires           -1;
+    proxy_pass_header Server;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Scheme $scheme;
+    proxy_redirect off;
+    proxy_pass http://%(name)s;
+    proxy_next_upstream error;
+    proxy_connect_timeout 60;
+    proxy_send_timeout 60;
+    proxy_read_timeout 60;
+  }
+}
+""" % params
+    click.echo(txt)
+
 
 cli.add_command(init)
 cli.add_command(addbp)
 cli.add_command(clear)
 cli.add_command(db_patch)
+cli.add_command(deploy_supervisor)
+cli.add_command(deploy_nginx)
 
 def main():
     cli()
