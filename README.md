@@ -37,6 +37,12 @@ A bootstrap toolkit to kickoff a flask project
 
     $fbones deploy_nginx my_app 80000 test.mydomain.com > /etc/nginx/conf.d/my_app.conf
 
+###6. Generate service class from model class
+
+    $fbones gen_serv models:User
+
+  this command will print service class code from models.py
+
 
 
 

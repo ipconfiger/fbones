@@ -50,6 +50,17 @@ class DeclaredBase(object):
                 result_dict[property_name] = float(result_dict[property_name])
         return result_dict
 
+    @classmethod
+    def byId(cls, instance_id):
+        """
+        通过ID获取记录
+        :param instance_id:
+        :type instance_id:
+        :return:
+        :rtype:
+        """
+        return cls.query.get(instance_id)
+
 
 
 Base = declarative_base(cls=DeclaredBase)

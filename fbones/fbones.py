@@ -8,6 +8,11 @@ import click
 import sys
 
 
+def command(func):
+    cli.add_command(func)
+    return func
+
+
 def get_path(*path):
     paths = []
     paths.append(os.getcwd())
@@ -83,7 +88,7 @@ def edit_alembic_env():
 def cli():
     pass
 
-
+@command
 @click.command()
 def init():
     if check_lock():
@@ -124,6 +129,7 @@ def init():
     set_lock()
 
 
+@command
 @click.command()
 @click.argument('name')
 def addbp(name):
@@ -187,6 +193,7 @@ def addbp(name):
     click.echo("Blueprint created")
 
 
+@command
 @click.command()
 def clear():
     if not check_lock():
@@ -196,11 +203,13 @@ def clear():
     click.echo("done")
 
 
+@command
 @click.command()
 def db_patch():
     edit_alembic_env()
     click.echo("Done!")
 
+@command
 @click.command()
 @click.argument('name')
 @click.argument('port')
@@ -268,13 +277,54 @@ server {
 """ % params
     click.echo(txt)
 
+@command
+@click.command()
+@click.argument('model_class')
+def gen_serv(model_class):
+    """
+    生成基础服务代码
+    :param model_class:
+    :type model_class:
+    :return:
+    :rtype:
+    """
+    sys.path.append('.')
+    try:
+        model_name, class_name = model_class.split(':')
+    except Exception as e:
+        click.echo(u"argument must as module:class")
+        sys.exit(1)
+    mod = __import__(model_name)
+    cls = getattr(mod, class_name)
+    serviceName = "%sService" % class_name
+    tb_name = cls.__tablename__
+    rows = ["class %s(object):" % serviceName]
+    rows.append("    def __init__(self):")
+    rows.append("        self.%s_id = None" % tb_name)
+    rows.append("        self.%s = None" % tb_name)
+    rows.append("")
+    rows.append("    @classmethod")
+    rows.append("    def fromId(cls, id):")
+    rows.append("        ins = cls()")
+    rows.append("        ins.%s_id = id" % tb_name)
+    rows.append("        ins.%s = %s.byId(id)" % (tb_name, class_name))
+    rows.append("        return ins")
+    rows.append("")
+    rows.append("    @classmethod")
+    rows.append("    def fromObject(cls, obj):")
+    rows.append("        ins = cls()")
+    rows.append("        ins.%s_id = obj.id" % tb_name)
+    rows.append("        ins.%s = obj" % tb_name)
+    rows.append("        return ins")
+    rows.append("")
+    rows.append("    def remove(self):")
+    rows.append("        db.delete(self.%s)" % tb_name)
+    rows.append("")
+    rows.append("")
+    txt = "\n".join(rows)
+    click.echo(txt)
+    sys.exit(0)
 
-cli.add_command(init)
-cli.add_command(addbp)
-cli.add_command(clear)
-cli.add_command(db_patch)
-cli.add_command(deploy_supervisor)
-cli.add_command(deploy_nginx)
 
 def main():
     cli()

@@ -4,7 +4,7 @@
 from setuptools import setup
 
 setup(name='fbones',
-      version='0.0.4',
+      version='0.0.5',
       description='A bootstrap toolkit to kickoff a flask project',
       url='https://github.com/ipconfiger/fbones',
       author='Alexander.Li',
