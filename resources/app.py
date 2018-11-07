@@ -1,6 +1,6 @@
 # coding=utf8
 from flask import Flask
-from configs import config
+from configs import settings
 from constants import FLASK_DOC_EXTENTION_KEY
 
 __all__ = ['create_app']
@@ -8,7 +8,7 @@ __all__ = ['create_app']
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_object(config)
+    app.config.from_object(settings)
     extensions = configure_extensions(app)
     configure_template_filters(app)
     configure_hooks(app)
